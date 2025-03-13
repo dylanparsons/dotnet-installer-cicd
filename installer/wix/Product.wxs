@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Product Id="*" Name="MyApp" Language="1033" Version="1.0.0.0" 
+           Manufacturer="Your Company" UpgradeCode="248abdfb-7283-43e0-b52f-2374c660355a">
+    
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate />
+
+    <Feature Id="ProductFeature" Title="MyApp" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ProgramMenuDir"/>
+    </Feature>
+
+    <UI>
+      <UIRef Id="WixUI_InstallDir" />
+      <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    </UI>
+    
+    <!-- Define app icon for Add/Remove Programs -->
+    <Icon Id="app_icon.ico" SourceFile="branding\app_icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="app_icon.ico" />
+    
+    <!-- License and branding -->
+    <WixVariable Id="WixUILicenseRtf" Value="branding\license.rtf" />
+    <WixVariable Id="WixUIDialogBmp" Value="branding\dialog.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="branding\banner.bmp" />
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder" Name="PFiles">
+        <Directory Id="INSTALLFOLDER" Name="MyApp" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name="MyApp">
+          <Component Id="ProgramMenuDir" Guid="*">
+            <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+            <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' 
+                           Type='string' Value='' KeyPath='yes' />
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <!-- Main executable -->
+      <Component Id="MainExecutable" Guid="*" Win64="yes">
+        <File Id="MainExe" Name="MyApp.exe" Source="publish\MyApp.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuDir" Name="MyApp" 
+                    WorkingDirectory="INSTALLFOLDER" Icon="app_icon.ico" IconIndex="0" 
+                    Advertise="yes" />
+          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="MyApp" 
+                    WorkingDirectory="INSTALLFOLDER" Icon="app_icon.ico" IconIndex="0" 
+                    Advertise="yes" />
+        </File>
+      </Component>
+      
+      <!-- Config file -->
+      <Component Id="ConfigFile" Guid="*" Win64="yes">
+        <File Id="ConfigFileId" Name="MyApp.dll.config" 
+              Source="publish\MyApp.dll.config" KeyPath="yes" />
+      </Component>
+      
+      <!-- Main DLL -->
+      <Component Id="MainDll" Guid="*" Win64="yes">
+        <File Id="MainDllId" Name="MyApp.dll" Source="publish\MyApp.dll" KeyPath="yes" />
+      </Component>
+      
+      <!-- Add more components for other files -->
+      <!-- Or use heat.exe to generate the component list automatically -->
+    </ComponentGroup>
+  </Fragment>
+</Wix>
