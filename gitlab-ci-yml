@@ -23,22 +23,16 @@ build_project:
 # Create installer with Inno Setup on Linux
 create_inno_installer:
   stage: package
-  image: mono:latest
+  image: domgho/innodockerlight:latest
   dependencies:
     - build_project
   before_script:
-    - apt-get update && apt-get install -y wget unzip sed uuidgen
-    - wget https://files.jrsoftware.org/is/6/innosetup-6.2.1.exe
-    - wget https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe
-    - mkdir -p /opt/innosetup
-    - unzip -d /opt/innosetup innosetup-*.exe || true
-    - wget https://github.com/derekdreery/iscc-rs/releases/download/v0.1.0/iscc-linux-x64
-    - chmod +x iscc-linux-x64
     # Update version in Inno Setup script
+    - apt-get update && apt-get install -y sed
     - sed -i "s/#define MyAppVersion \".*\"/#define MyAppVersion \"${APP_VERSION}\"/g" installer/inno/setup.iss
   script:
     - mkdir -p ./Output
-    - ./iscc-linux-x64 installer/inno/setup.iss
+    - iscc installer/inno/setup.iss
   artifacts:
     paths:
       - ./Output/*.exe
